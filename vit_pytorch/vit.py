@@ -1,7 +1,6 @@
 import torch
 from torch import nn, einsum
 import torch.nn.functional as F
-
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 
@@ -115,7 +114,7 @@ class ViT(nn.Module):
 
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
         x = torch.cat((cls_tokens, x), dim=1)
-        x += self.pos_embedding[:, :(n + 1)]
+        x += self.pos_embedding[:, :(n + 1)] #tokens 与 位置编码 结合
         x = self.dropout(x)
 
         x = self.transformer(x)
@@ -124,3 +123,19 @@ class ViT(nn.Module):
 
         x = self.to_latent(x)
         return self.mlp_head(x)
+
+if __name__ == '__main__':
+    v = ViT(
+    image_size = 256,
+    patch_size = 32,
+    num_classes = 1000,
+    dim = 1024,
+    depth = 6,
+    heads = 16,
+    mlp_dim = 2048,
+    dropout = 0.1,
+    emb_dropout = 0.1)
+
+    img = torch.randn(1, 3, 256, 256)
+
+    preds = v(img) # (1, 1000)
