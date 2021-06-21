@@ -28,7 +28,7 @@ class FeedForward(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, dim),
             nn.Dropout(dropout)
-        )
+        ) 
     def forward(self, x):
         return self.net(x)
 
@@ -54,7 +54,7 @@ class Attention(nn.Module):
         qkv = self.to_qkv(x).chunk(3, dim = -1)
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = h), qkv)
 
-        dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale
+        dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale # 矩阵相乘除以根号，注意这里有k的转置
 
         attn = self.attend(dots)
 
@@ -114,7 +114,7 @@ class ViT(nn.Module):
 
         cls_tokens = repeat(self.cls_token, '() n d -> b n d', b = b)
         x = torch.cat((cls_tokens, x), dim=1)
-        x += self.pos_embedding[:, :(n + 1)] #tokens 与 位置编码 结合
+        x += self.pos_embedding[:, :(n + 1)] #tokens 与 位置编码 结合 这里有必要：(N+1)吗？
         x = self.dropout(x)
 
         x = self.transformer(x)
